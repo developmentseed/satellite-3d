@@ -1,0 +1,28 @@
+service: satellite-3d
+
+provider:
+  name: aws
+  runtime: python3.6
+  stage: production
+  
+  environment:
+    GDAL_DATA: /var/task/share/gdal
+    MAPBOX_ACCESS_TOKEN: ${env:MapboxAccessToken}
+
+  apiGateway:
+    binaryMediaTypes:
+      - '*/*'
+
+package:
+  artifact: package.zip
+
+functions:
+  stac_to_mosaic:
+    handler: satellite_3d.handler.APP
+    memorySize: 3008
+    timeout: 10
+    events:
+      - http:
+          path: /{proxy+}
+          method: get
+          cors: true

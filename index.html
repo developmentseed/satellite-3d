@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <title>Terrain</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+    body { margin:0; padding:0; }
+    #map { position:absolute; top:0; bottom:0; width:100%; }
+      body {
+          overflow: hidden;
+      }
+      body * {
+         -webkit-touch-callout: none;
+           -webkit-user-select: none;
+              -moz-user-select: none;
+               -ms-user-select: none;
+                   user-select: none;
+      }
+      .map {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 100%;
+      }
+      #menu {
+          background: #fff;
+          position: absolute;
+          z-index: 1;
+          top: 15px;
+          right: 55px;
+          border-radius: 3px;
+          border: 1px solid rgba(0,0,0,0.4);
+          font-family: 'Open Sans', sans-serif;
+      }
+      #menu a {
+          font-size: 13px;
+          color: #404040;
+          display: block;
+          margin: 0;
+          padding: 0;
+          padding: 10px;
+          text-decoration: none;
+          border-bottom: 1px solid rgba(0,0,0,0.25);
+          text-align: center;
+      }
+      #menu a:last-child {
+          border: none;
+      }
+      #menu a:hover {
+          background-color: #f8f8f8;
+          color: #404040;
+      }
+      #menu a.active {
+          background-color: #3887be;
+          color: #ffffff;
+      }
+      #menu a.active:hover {
+          background: #3074a4;
+      }
+    </style>
+  </head>
+  <body>
+    <div id='map'></div>
+
+<script>
+mapboxgl.accessToken = '{Your Mapbox Token here}'
+
+var map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/basic-v9',
+  center: [-119.5591, 37.715],
+  zoom: 9,
+  minZoom: 1,
+  maxZoom: 14,
+  attributionControl: true,
+  hash: true,
+})
+
+var endpoint = '{Your API Gateway endpoint here}'
+
+const sMin = 0
+const sMax = 10000
+const exag = 2.5
+
+map.on('load', () => {
+  map.addSource('mvt', {
+    type: 'vector',
+    tiles: [endpoint],
+    minzoom: 9,
+    maxzoom: 14
+  })
+
+  map.addLayer({
+    id: 'mvt',
+    source: 'mvt',
+    'source-layer': 'satellite-3d',
+    type: 'fill-extrusion',
+    paint: {
+      'fill-extrusion-opacity': 1,
+      'fill-extrusion-height': [
+        'interpolate',
+        ['linear'],
+        ['to-number', ['get', 'elevation']],
+        sMin, 0,
+        sMax, sMax * exag
+      ],
+      // 'fill-extrusion-height': ['to-number', ['get', 'elevation']],
+      'fill-extrusion-color': [
+        "rgb",
+        ['to-number', ['get', 'R']],
+        ['to-number', ['get', 'G']],
+        ['to-number', ['get', 'B']]
+      ]
+    }
+  })
+})
+
+</script>
+
+  </body>
+</html>
